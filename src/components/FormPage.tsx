@@ -1,14 +1,18 @@
+// FormPage.tsx
 'use client';
-import { JSX } from 'react';
+
+import { ClipLoader } from 'react-spinners';
 import { FormField } from '../types/form';
-import Loader from './Loader';
+import { ButtonState } from '../types/buttonStates';
+import { getButtonClasses, getButtonContent } from '../lib/utils/buttonStates';
 
 interface FormPageProps {
   pageTitle: string;
   inputFields: FormField[];
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
-  loaderLabel: string;
+  isSuccess: boolean;
+  isError: boolean;
 }
 
 export const FormPage = ({
@@ -16,51 +20,69 @@ export const FormPage = ({
   inputFields,
   handleSubmit,
   isLoading,
-  loaderLabel,
+  isSuccess,
+  isError,
 }: FormPageProps) => {
-  //TODO: how are the names?
+  const getButtonState = (): ButtonState => {
+    if (isLoading) return 'loading';
+    if (isSuccess) return 'success';
+    if (isError) return 'error';
+    return 'idle';
+  };
+  const buttonState = getButtonState();
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      <h1 className="text-3xl font-bold text-center mb-6">{pageTitle}</h1>
+      {/* Header */}
+      <div className="-mt-8 -mx-8 bg-blue-600 px-8 py-4 text-white">
+        <h1 className="text-3xl font-bold text-center">{pageTitle}</h1>
+      </div>
 
-      {inputFields.map((field) => {
-        return (
-          <div key={field.id} className="flex flex-col">
-            <label className="mb-2 font-semibold" htmlFor={field.id}>
-              {field.label}
-            </label>
-            {field.InputType === 'input' ? (
-              <input
-                id={field.id}
-                type="text"
-                value={field.value}
-                onChange={(e) => field.onChange(e)}
-                placeholder={field.placeholder}
-                className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            ) : (
-              <textarea
-                id={field.id}
-                value={field.value}
-                onChange={(e) => field.onChange(e)}
-                placeholder={field.placeholder}
-                className="border border-gray-300 rounded-lg p-3 h-40 resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            )}
-          </div>
-        );
-      })}
-      {isLoading ? (
-        <Loader label={loaderLabel} />
-      ) : (
-        <button
-          type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg py-3 px-6 transition-all"
-        >
-          Submit
-        </button>
-      )}
+      {/* Fields */}
+      {inputFields.map((field) => (
+        <div key={field.id} className="relative">
+          {/* common field classes: full width, extra top padding */}
+          {field.InputType === 'input' ? (
+            <input
+              id={field.id}
+              type="text"
+              value={field.value}
+              onChange={(e) => field.onChange(e)}
+              placeholder="" // remove native placeholder
+              className="w-full border border-gray-300 rounded-lg px-3 pt-6 pb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          ) : (
+            <textarea
+              id={field.id}
+              value={field.value}
+              onChange={(e) => field.onChange(e)}
+              placeholder=""
+              className="w-full border border-gray-300 rounded-lg px-3 pt-6 pb-3 h-40 resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          )}
+          {/* overlapping label */}
+          <label
+            htmlFor={field.id}
+            className="absolute left-3 top-0 -translate-y-1/2 bg-white px-1 text-sm text-gray-600 pointer-events-none"
+          >
+            {field.label}
+          </label>
+        </div>
+      ))}
+
+      {/* Submit Button */}
+      <button
+        type="submit"
+        className={`
+          ${getButtonClasses(buttonState)}
+          text-white font-semibold rounded-lg py-3 px-6
+          transition-colors duration-300 ease-in-out
+          flex items-center justify-center
+        `}
+        disabled={isLoading}
+      >
+        {getButtonContent(buttonState)}
+      </button>
     </form>
   );
 };

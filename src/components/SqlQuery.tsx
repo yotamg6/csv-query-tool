@@ -41,10 +41,9 @@ export const SqlQuery = () => {
   };
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // if (!csvUrl || !sqlQuery) {
-    //   return;
-    // }
-    // mutation.mutate({ csvUrl, sqlQuery });//TODO: bring back
+    if (!csvUrl || !sqlQuery) {
+      return;
+    }
     mutation.mutate({ csvUrl, sqlQuery });
   };
 
@@ -52,7 +51,7 @@ export const SqlQuery = () => {
     label: 'CSV URL',
     value: csvUrl,
     onChange: onUrlChange,
-    placeholder: 'Enter public CSV URL',
+    placeholder: 'Enter CSV URL',
     InputType: 'textArea',
     id: 'csv-url',
   };
@@ -80,7 +79,8 @@ export const SqlQuery = () => {
         inputFields={inputFields}
         handleSubmit={handleSubmit}
         isLoading={mutation.isPending}
-        loaderLabel="Running Query..."
+        isSuccess={mutation.isSuccess}
+        isError={mutation.isError}
       />
       {results && <QueryResults results={results} />}
     </>
