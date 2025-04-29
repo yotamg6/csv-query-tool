@@ -5,6 +5,7 @@ interface BaseField {
   value: string;
   placeholder: string;
   id: string;
+  required?: boolean;
 }
 
 export interface InputField extends BaseField {

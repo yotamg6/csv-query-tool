@@ -1,10 +1,9 @@
-// FormPage.tsx
 'use client';
 
-import { ClipLoader } from 'react-spinners';
 import { FormField } from '../types/form';
 import { ButtonState } from '../types/buttonStates';
 import { getButtonClasses, getButtonContent } from '../lib/utils/buttonStates';
+import { FormEventHandler, useEffect, useState } from 'react';
 
 interface FormPageProps {
   pageTitle: string;
@@ -13,6 +12,8 @@ interface FormPageProps {
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
+  resetFields: () => void;
+  hasResults: boolean;
 }
 
 export const FormPage = ({
@@ -22,55 +23,102 @@ export const FormPage = ({
   isLoading,
   isSuccess,
   isError,
+  resetFields,
+  hasResults,
 }: FormPageProps) => {
-  const getButtonState = (): ButtonState => {
-    if (isLoading) return 'loading';
-    if (isSuccess) return 'success';
-    if (isError) return 'error';
-    return 'idle';
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [buttonState, setButtonState] = useState<ButtonState>('idle');
+
+  const handleReset = () => {
+    setButtonState('idle');
+    setErrors({});
+    resetFields();
   };
-  const buttonState = getButtonState();
+
+  const handleInvalid: FormEventHandler<any> = (e) => {
+    e.preventDefault();
+    const tgt = e.currentTarget as HTMLInputElement | HTMLTextAreaElement;
+    setErrors((prev) => ({
+      ...prev,
+      [tgt.id]: tgt.validationMessage,
+    }));
+  };
+
+  const handleInput: FormEventHandler<any> = (e) => {
+    const tgt = e.currentTarget as HTMLInputElement | HTMLTextAreaElement;
+    setErrors((prev) => {
+      if (!prev[tgt.id]) return prev;
+      const next = { ...prev };
+      delete next[tgt.id];
+      return next;
+    });
+    setButtonState('idle');
+  };
+
+  useEffect(() => {
+    setButtonState(isLoading ? 'loading' : isSuccess ? 'success' : isError ? 'error' : 'idle');
+  }, [isLoading, isSuccess, isError]);
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      {/* Header */}
       <div className="-mt-8 -mx-8 bg-blue-600 px-8 py-4 text-white">
         <h1 className="text-3xl font-bold text-center">{pageTitle}</h1>
       </div>
 
-      {/* Fields */}
-      {inputFields.map((field) => (
-        <div key={field.id} className="relative">
-          {/* common field classes: full width, extra top padding */}
-          {field.InputType === 'input' ? (
-            <input
-              id={field.id}
-              type="text"
-              value={field.value}
-              onChange={(e) => field.onChange(e)}
-              placeholder="" // remove native placeholder
-              className="w-full border border-gray-300 rounded-lg px-3 pt-6 pb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          ) : (
-            <textarea
-              id={field.id}
-              value={field.value}
-              onChange={(e) => field.onChange(e)}
-              placeholder=""
-              className="w-full border border-gray-300 rounded-lg px-3 pt-6 pb-3 h-40 resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          )}
-          {/* overlapping label */}
-          <label
-            htmlFor={field.id}
-            className="absolute left-3 top-0 -translate-y-1/2 bg-white px-1 text-sm text-gray-600 pointer-events-none"
-          >
-            {field.label}
-          </label>
-        </div>
-      ))}
+      {inputFields.map((field) => {
+        return (
+          <div key={field.id} className="relative">
+            {field.InputType === 'input' ? (
+              <input
+                id={field.id}
+                type="text"
+                value={field.value}
+                onChange={(e) => field.onChange(e)}
+                required
+                onInvalid={handleInvalid}
+                onInput={handleInput}
+                className={`
+                  w-full rounded-lg px-3 pt-6 pb-3
+                  border ${errors[field.id] ? 'border-red-500' : 'border-gray-300'}
+                  focus:outline-none
+                  ${errors[field.id] ? 'focus:ring-red-400' : 'focus:ring-blue-400'}
+                `}
+              />
+            ) : (
+              <textarea
+                id={field.id}
+                value={field.value}
+                onChange={(e) => field.onChange(e)}
+                required
+                onInvalid={handleInvalid}
+                onInput={handleInput}
+                className={`
+                  w-full rounded-lg px-3 pt-6 pb-3 h-40 resize-none
+                  border ${errors[field.id] ? 'border-red-500' : 'border-gray-300'}
+                  focus:outline-none
+                  ${errors[field.id] ? 'focus:ring-red-400' : 'focus:ring-blue-400'}
+                `}
+              />
+            )}
 
-      {/* Submit Button */}
+            <label
+              htmlFor={field.id}
+              className="
+                absolute left-3 top-0 -translate-y-1/2
+                bg-white px-1 text-sm text-gray-600 pointer-events-none
+              "
+            >
+              {field.label}
+              {field.required && (
+                <span className="inline-block ml-1 w-2 h-2 bg-red-500 rounded-full" />
+              )}
+            </label>
+
+            {errors[field.id] && <p className="mt-1 text-sm text-red-600">{errors[field.id]}</p>}
+          </div>
+        );
+      })}
+
       <button
         type="submit"
         className={`
@@ -79,10 +127,23 @@ export const FormPage = ({
           transition-colors duration-300 ease-in-out
           flex items-center justify-center
         `}
-        disabled={isLoading}
+        disabled={isLoading || isSuccess || isError}
       >
         {getButtonContent(buttonState)}
       </button>
+      {hasResults && (
+        <button
+          type="button" // <<< prevents form submission
+          onClick={handleReset}
+          className="
+           bg-yellow-600 hover:bg-yellow-700
+           text-white font-semibold rounded-lg
+           py-3 px-6 mt-2 transition-colors duration-300 ease-in-out
+         "
+        >
+          Clear results
+        </button>
+      )}
     </form>
   );
 };

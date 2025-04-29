@@ -1,2 +1,0 @@
-// emptyModule.js
-module.exports = {};
