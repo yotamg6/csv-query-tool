@@ -1,21 +1,34 @@
-import { ChangeEvent, useState } from 'react';
+'use client';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { sendQuery } from '../lib/api/requests';
+import { QueryRequest, sendQuery } from '../lib/api/requests';
 import { FormPage } from './FormPage';
 import { FormField, InputField, TextAreaField } from '../types/form';
-import { satutsToFeedback } from '../lib/utils/form';
-import Loader from './Loader';
+import { toast } from 'react-hot-toast';
+import QueryResults from './QueryResults';
+import { CsvQueryResult, QueryResponse } from '../types/csv';
+
+const dummyUrl =
+  'https://raw.githubusercontent.com/ngshiheng/michelin-my-maps/main/data/michelin_my_maps.csv';
+const dummyQueryString = 'SELECT DISTINCT Location from data LIMIT 10';
 
 export const SqlQuery = () => {
   const [csvUrl, setCsvUrl] = useState('');
   const [sqlQuery, setSqlQuery] = useState('');
+  const [results, setResults] = useState<CsvQueryResult | null>(null);
 
-  const mutation = useMutation({
+  const mutation = useMutation<QueryResponse, Error, QueryRequest>({
     mutationFn: sendQuery,
     onSuccess: (data) => {
-      console.log('Response:', data);
+      setResults(data.result);
+      toast.success(data.message);
+      setCsvUrl('');
+      setSqlQuery('');
     },
     onError: (error) => {
+      toast.error(error.message);
+      setCsvUrl('');
+      setSqlQuery('');
       console.error('Error:', error);
     },
   });
@@ -28,24 +41,12 @@ export const SqlQuery = () => {
   };
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!csvUrl || !sqlQuery) {
-      return;
-    }
+    // if (!csvUrl || !sqlQuery) {
+    //   return;
+    // }
+    // mutation.mutate({ csvUrl, sqlQuery });//TODO: bring back
     mutation.mutate({ csvUrl, sqlQuery });
   };
-
-  const renderByStatus = () => {
-    const currentStatus = mutation.isPending
-      ? 'pending'
-      : mutation.isError
-      ? 'error'
-      : mutation.isSuccess
-      ? 'success'
-      : 'idle';
-    return satutsToFeedback[currentStatus];
-  };
-
-  const loader = mutation.isPending ? <Loader label="Running Query..." /> : undefined;
 
   const urlInputField: TextAreaField = {
     label: 'CSV URL',
@@ -67,12 +68,21 @@ export const SqlQuery = () => {
 
   const inputFields: FormField[] = [urlInputField, queryInputField];
 
+  useEffect(() => {
+    //TODO: remove the whole effect
+    setCsvUrl(dummyUrl);
+    setSqlQuery(dummyQueryString);
+  }, []);
   return (
-    <FormPage
-      pageTitle="CSV Query Tool"
-      inputFields={inputFields}
-      handleSubmit={handleSubmit}
-      loader={loader}
-    />
+    <>
+      <FormPage
+        pageTitle="CSV Query Tool"
+        inputFields={inputFields}
+        handleSubmit={handleSubmit}
+        isLoading={mutation.isPending}
+        loaderLabel="Running Query..."
+      />
+      {results && <QueryResults results={results} />}
+    </>
   );
 };

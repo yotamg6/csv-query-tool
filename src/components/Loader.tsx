@@ -1,37 +1,18 @@
+'use client';
+
 import React from 'react';
+import { ClipLoader } from 'react-spinners';
 
 interface LoaderProps {
   label: string;
-  size?: number;
 }
 
-const Loader = ({ label, size = 4 }: LoaderProps) => {
-  const spinnerSize = `h-${size} w-${size}`;
-
+const Loader = ({ label }: LoaderProps) => {
   return (
-    <span className="inline-flex items-center gap-2 text-sm">
-      <svg
-        className={`animate-spin ${spinnerSize} text-white`}
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <circle
-          className="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          strokeWidth="4"
-        />
-        <path
-          className="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z"
-        />
-      </svg>
-      {label}
-    </span>
+    <div className="flex items-center gap-2 text-blue-600 font-medium">
+      <ClipLoader size={20} color="#3b82f6" />
+      <span>{label}</span>
+    </div>
   );
 };
 

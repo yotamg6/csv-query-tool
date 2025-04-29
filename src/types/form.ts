@@ -1,4 +1,3 @@
-// types/form.ts
 import { ChangeEvent } from 'react';
 
 interface BaseField {

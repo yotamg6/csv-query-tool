@@ -1,57 +1,66 @@
 'use client';
-
 import { JSX } from 'react';
 import { FormField } from '../types/form';
+import Loader from './Loader';
 
 interface FormPageProps {
   pageTitle: string;
   inputFields: FormField[];
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  loader?: JSX.Element;
+  isLoading: boolean;
+  loaderLabel: string;
 }
 
-export const FormPage = ({ pageTitle, inputFields, handleSubmit, loader }: FormPageProps) => {
-  //how are the names?
+export const FormPage = ({
+  pageTitle,
+  inputFields,
+  handleSubmit,
+  isLoading,
+  loaderLabel,
+}: FormPageProps) => {
+  //TODO: how are the names?
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <h1 className="text-3xl font-bold text-center mb-6">{pageTitle}</h1>
 
-      {inputFields.map((input) => {
+      {inputFields.map((field) => {
         return (
-          <div className="flex flex-col">
-            <label className="mb-2 font-semibold" htmlFor="csv-url">
-              {input.label}
+          <div key={field.id} className="flex flex-col">
+            <label className="mb-2 font-semibold" htmlFor={field.id}>
+              {field.label}
             </label>
-            {input.InputType === 'input' ? (
+            {field.InputType === 'input' ? (
               <input
-                id={input.id}
+                id={field.id}
                 type="text"
-                value={input.value}
-                onChange={(e) => input.onChange(e)}
-                placeholder={input.placeholder}
+                value={field.value}
+                onChange={(e) => field.onChange(e)}
+                placeholder={field.placeholder}
                 className="border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             ) : (
               <textarea
-                id={input.id}
-                value={input.value}
-                onChange={(e) => input.onChange(e)}
-                placeholder={input.placeholder}
+                id={field.id}
+                value={field.value}
+                onChange={(e) => field.onChange(e)}
+                placeholder={field.placeholder}
                 className="border border-gray-300 rounded-lg p-3 h-40 resize-none focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             )}
           </div>
         );
       })}
-      <button
-        type="submit"
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg py-3 px-6 transition-all"
-      >
-        {!loader && 'Submit'}
-      </button>
-
-      {loader}
+      {isLoading ? (
+        <Loader label={loaderLabel} />
+      ) : (
+        <button
+          type="submit"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg py-3 px-6 transition-all"
+        >
+          Submit
+        </button>
+      )}
     </form>
   );
 };

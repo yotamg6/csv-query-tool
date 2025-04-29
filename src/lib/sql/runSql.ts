@@ -1,17 +1,12 @@
+import { CsvQueryResult, CsvRow } from '@/src/types/csv';
 import alasql from 'alasql/dist/alasql.min.js';
 
-export const runSqlQuery = async (
-  data: Record<string, string>[],
-  sqlQuery: string,
-): Promise<Record<string, unknown>[]> => {
-  // create in‐memory table
+export const runSqlQuery = async (data: CsvRow[], sqlQuery: string): Promise<CsvQueryResult> => {
   alasql('CREATE TABLE data');
   alasql.tables.data.data = data;
 
-  // run the SQL
-  const result = alasql(sqlQuery) as Record<string, unknown>[];
+  const result = alasql(sqlQuery) as CsvQueryResult;
 
-  // clean up
   alasql('DROP TABLE data');
 
   return result;
