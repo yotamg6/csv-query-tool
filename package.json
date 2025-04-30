@@ -19,7 +19,8 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-hot-toast": "2.5.2",
-    "react-spinners": "0.17.0"
+    "react-spinners": "0.17.0",
+    "react-textarea-autosize": "8.5.9"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

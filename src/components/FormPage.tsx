@@ -4,6 +4,7 @@ import { FormField } from '../types/form';
 import { ButtonState } from '../types/buttonStates';
 import { getButtonClasses, getButtonContent } from '../lib/utils/buttonStates';
 import { FormEventHandler, useEffect, useState } from 'react';
+import TextareaAutosize from 'react-textarea-autosize';
 
 interface FormPageProps {
   pageTitle: string;
@@ -35,22 +36,22 @@ export const FormPage = ({
     resetFields();
   };
 
-  const handleInvalid: FormEventHandler<any> = (e) => {
+  const handleInvalid: FormEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
     e.preventDefault();
-    const tgt = e.currentTarget as HTMLInputElement | HTMLTextAreaElement;
+    const target = e.currentTarget;
     setErrors((prev) => ({
       ...prev,
-      [tgt.id]: tgt.validationMessage,
+      [target.id]: target.validationMessage,
     }));
   };
 
-  const handleInput: FormEventHandler<any> = (e) => {
-    const tgt = e.currentTarget as HTMLInputElement | HTMLTextAreaElement;
+  const handleInput: FormEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
+    const target = e.currentTarget;
     setErrors((prev) => {
-      if (!prev[tgt.id]) return prev;
-      const next = { ...prev };
-      delete next[tgt.id];
-      return next;
+      if (!prev[target.id]) return prev;
+      const newErrors = { ...prev };
+      delete newErrors[target.id];
+      return newErrors;
     });
     setButtonState('idle');
   };
@@ -74,7 +75,7 @@ export const FormPage = ({
                 type="text"
                 value={field.value}
                 onChange={(e) => field.onChange(e)}
-                required
+                required={field.required}
                 onInvalid={handleInvalid}
                 onInput={handleInput}
                 className={`
@@ -85,19 +86,18 @@ export const FormPage = ({
                 `}
               />
             ) : (
-              <textarea
+              <TextareaAutosize
                 id={field.id}
                 value={field.value}
                 onChange={(e) => field.onChange(e)}
-                required
+                required={field.required}
                 onInvalid={handleInvalid}
                 onInput={handleInput}
-                className={`
-                  w-full rounded-lg px-3 pt-6 pb-3 h-40 resize-none
-                  border ${errors[field.id] ? 'border-red-500' : 'border-gray-300'}
-                  focus:outline-none
-                  ${errors[field.id] ? 'focus:ring-red-400' : 'focus:ring-blue-400'}
-                `}
+                className={`w-full resize-none rounded-lg px-3 pt-6 pb-3 border ${
+                  errors[field.id]
+                } ? 'border-red-500' : 'border-gray-300'}
+                focus:outline-none
+                ${errors[field.id]} ? 'focus:ring-red-400' : 'focus:ring-blue-400`}
               />
             )}
 
@@ -109,7 +109,7 @@ export const FormPage = ({
               "
             >
               {field.label}
-              {field.required && (
+              {field.required && errors[field.id] && (
                 <span className="inline-block ml-1 w-2 h-2 bg-red-500 rounded-full" />
               )}
             </label>
@@ -133,7 +133,7 @@ export const FormPage = ({
       </button>
       {hasResults && (
         <button
-          type="button" // <<< prevents form submission
+          type="button"
           onClick={handleReset}
           className="
            bg-yellow-600 hover:bg-yellow-700

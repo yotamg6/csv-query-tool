@@ -35,13 +35,13 @@ export const SqlQuery = () => {
   });
 
   const onUrlChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setCsvUrl(e.target.value);
+    setCsvUrl(e.currentTarget.value);
     if (mutation.isSuccess || mutation.isError) {
       mutation.reset();
     }
   };
-  const onQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSqlQuery(e.target.value);
+  const onQueryChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setSqlQuery(e.currentTarget.value);
     if (mutation.isSuccess || mutation.isError) {
       mutation.reset();
     }
@@ -66,15 +66,17 @@ export const SqlQuery = () => {
     placeholder: 'Enter CSV URL',
     InputType: 'textArea',
     id: 'csv-url',
+    required: true,
   };
 
-  const queryInputField: InputField = {
+  const queryInputField: TextAreaField = {
     label: 'SQL Query',
     value: sqlQuery,
     onChange: onQueryChange,
     placeholder: 'Write your SQL query here',
-    InputType: 'input',
+    InputType: 'textArea',
     id: 'sql-query',
+    required: true,
   };
 
   const inputFields: FormField[] = [urlInputField, queryInputField];
