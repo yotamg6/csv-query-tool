@@ -6,9 +6,6 @@ export const POST = async (req: NextRequest) => {
   try {
     const { csvUrl, sqlQuery } = await req.json();
 
-    console.log('Received CSV URL:', csvUrl);
-    console.log('Received SQL Query:', sqlQuery);
-
     const csvData = await fetchCsvData(csvUrl);
 
     const queryResult = await runSqlQuery(csvData, sqlQuery);

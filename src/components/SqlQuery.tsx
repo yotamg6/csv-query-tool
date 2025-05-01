@@ -8,10 +8,10 @@ import { toast } from 'react-hot-toast';
 import QueryResults from './QueryResults';
 import { CsvQueryResult, QueryResponse } from '../types/csv';
 
-const dummyUrl = 'https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv';
+const dummyUrl =
+  'https://raw.githubusercontent.com/ngshiheng/michelin-my-maps/main/data/michelin_my_maps.csv';
 
-const dummyQueryString =
-  'SELECT sepal_length, sepal_width, petal_length, petal_width, species FROM data WHERE sepal_length > 5.0 LIMIT 15';
+const dummyQueryString = `SELECT * FROM data WHERE Location = 'Hong Kong'`;
 
 export const SqlQuery = () => {
   const [csvUrl, setCsvUrl] = useState('');
