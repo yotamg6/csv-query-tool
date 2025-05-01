@@ -1,0 +1,21 @@
+.largeButton {
+  @apply text-white font-semibold rounded-lg
+    py-3 px-6 mt-2 transition-colors duration-300 ease-in-out;
+}
+
+.formField {
+  @apply w-full rounded-lg px-3 pt-6 pb-3 border;
+}
+
+.overlapLabel {
+  @apply absolute left-3 top-0 -translate-y-1/2
+  bg-white px-1 text-sm text-gray-600 pointer-events-none;
+}
+
+.headerContainer {
+  @apply -mt-8 -mx-8 bg-blue-600 px-8 py-4 text-white;
+}
+
+.header {
+  @apply text-3xl font-bold text-center;
+}

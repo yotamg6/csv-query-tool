@@ -3,7 +3,7 @@ import { ClipLoader } from 'react-spinners';
 
 export const getButtonClasses = (state: ButtonState): string => {
   const classMap: Record<ButtonState, string> = {
-    loading: 'bg-gray-400 cursor-not-allowed',
+    loading: 'bg-gray-400',
     success: 'bg-green-600 hover:bg-green-700',
     error: 'bg-red-600 hover:bg-red-700',
     idle: 'bg-purple-600 hover:bg-purple-700',

@@ -5,6 +5,7 @@ import { ButtonState } from '../types/buttonStates';
 import { getButtonClasses, getButtonContent } from '../lib/utils/buttonStates';
 import { FormEventHandler, useEffect, useState } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
+import styles from '@/src/styles/formStyles.module.css';
 
 interface FormPageProps {
   pageTitle: string;
@@ -62,11 +63,12 @@ export const FormPage = ({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      <div className="-mt-8 -mx-8 bg-blue-600 px-8 py-4 text-white">
-        <h1 className="text-3xl font-bold text-center">{pageTitle}</h1>
+      <div className={`${styles.headerContainer}`}>
+        <h1 className={`${styles.header}`}>{pageTitle}</h1>
       </div>
 
       {inputFields.map((field) => {
+        const borderClass = errors[field.id] ? 'border-red-500' : 'border-gray-300';
         return (
           <div key={field.id} className="relative">
             {field.InputType === 'input' ? (
@@ -79,11 +81,7 @@ export const FormPage = ({
                 onInvalid={handleInvalid}
                 onInput={handleInput}
                 className={`
-                  w-full rounded-lg px-3 pt-6 pb-3
-                  border ${errors[field.id] ? 'border-red-500' : 'border-gray-300'}
-                  focus:outline-none
-                  ${errors[field.id] ? 'focus:ring-red-400' : 'focus:ring-blue-400'}
-                `}
+                  ${styles.formField} ${borderClass}`}
               />
             ) : (
               <TextareaAutosize
@@ -93,25 +91,13 @@ export const FormPage = ({
                 required={field.required}
                 onInvalid={handleInvalid}
                 onInput={handleInput}
-                className={`w-full resize-none rounded-lg px-3 pt-6 pb-3 border ${
-                  errors[field.id]
-                } ? 'border-red-500' : 'border-gray-300'}
-                focus:outline-none
-                ${errors[field.id]} ? 'focus:ring-red-400' : 'focus:ring-blue-400`}
+                className={`${styles.formField} resize-none ${borderClass}`}
               />
             )}
 
-            <label
-              htmlFor={field.id}
-              className="
-                absolute left-3 top-0 -translate-y-1/2
-                bg-white px-1 text-sm text-gray-600 pointer-events-none
-              "
-            >
+            <label htmlFor={field.id} className={`${styles.overlapLabel}`}>
               {field.label}
-              {field.required && errors[field.id] && (
-                <span className="inline-block ml-1 w-2 h-2 bg-red-500 rounded-full" />
-              )}
+              {field.required && <span className="inline-block ml-1 w-2 h-2 text-red-500">*</span>}
             </label>
 
             {errors[field.id] && <p className="mt-1 text-sm text-red-600">{errors[field.id]}</p>}
@@ -123,9 +109,7 @@ export const FormPage = ({
         type="submit"
         className={`
           ${getButtonClasses(buttonState)}
-          text-white font-semibold rounded-lg py-3 px-6
-          transition-colors duration-300 ease-in-out
-          flex items-center justify-center
+          ${styles.largeButton}
         `}
         disabled={isLoading || isSuccess || isError}
       >
@@ -135,11 +119,7 @@ export const FormPage = ({
         <button
           type="button"
           onClick={handleReset}
-          className="
-           bg-yellow-600 hover:bg-yellow-700
-           text-white font-semibold rounded-lg
-           py-3 px-6 mt-2 transition-colors duration-300 ease-in-out
-         "
+          className={`${styles.largeButton} bg-yellow-600 hover:bg-yellow-700`}
         >
           Clear results
         </button>
