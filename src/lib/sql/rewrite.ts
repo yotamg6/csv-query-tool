@@ -6,23 +6,23 @@ export const rewriteQueryTable = (sql: string, actualTable: string): string => {
   try {
     const ast = parser.astify(sql);
 
-    const rewrite = (node: any) => {
-      console.log('node', node);
-      if (!node || typeof node !== 'object') return;
+    const rewrite = (node: unknown): void => {
+      if (typeof node !== 'object' || node === null) return;
 
-      if (node.table && typeof node.table === 'string' && node.table.toLowerCase() === 'data') {
-        node.table = actualTable;
+      const n = node as Record<string, unknown>;
+
+      if (typeof n.table === 'string' && n.table.toLowerCase() === 'data') {
+        n.table = actualTable;
       }
 
-      for (const key in node) {
-        if (node.hasOwnProperty(key)) {
-          rewrite(node[key]);
+      for (const key in n) {
+        if (Object.prototype.hasOwnProperty.call(n, key)) {
+          rewrite(n[key]);
         }
       }
     };
 
     rewrite(ast);
-
     return parser.sqlify(ast);
   } catch (err) {
     console.error('Failed to parse and rewrite SQL query:', err);

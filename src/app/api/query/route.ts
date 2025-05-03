@@ -39,8 +39,9 @@ export const POST = async (req: NextRequest) => {
       message: 'SQL query executed successfully.',
       result,
     });
-  } catch (error: any) {
-    console.error('Error:', error.message);
-    return NextResponse.json({ error: error.message }, { status: 400 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Error:', message);
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 };

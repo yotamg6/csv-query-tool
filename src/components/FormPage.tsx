@@ -86,6 +86,7 @@ export const FormPage = ({
             ) : (
               <TextareaAutosize
                 id={field.id}
+                name={field.id}
                 value={field.value}
                 onChange={(e) => field.onChange(e)}
                 required={field.required}
