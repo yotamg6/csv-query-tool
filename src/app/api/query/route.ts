@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchCsvData } from '@/src/lib/csv/fetchCsv';
-import { rewriteQueryTable } from '@/src/lib/sql/rewrite';
-import { hashCsv } from '@/src/lib/utils/hash';
-import { ensureCacheTableExists, getTableNameByHash, registerCsvHash } from '@/src/lib/db/cache';
-import { createTable, insertRows } from '@/src/lib/db/tables';
-import { runQuery } from '@/src/lib/db/runQuery';
-import { generateTableName } from '@/src/lib/sql/tableName';
+import { fetchCsvData } from '@/lib/csv/fetchCsvData';
+import { hashCsv } from '@/lib/utils/hash';
+import { ensureCacheTableExists, getTableNameByHash, registerCsvHash } from '@/lib/db/cache';
+import { generateTableName } from '@/lib/sql/tableName';
+import { createTable, insertRows } from '@/lib/db/tables';
+import { rewriteQueryTable } from '@/lib/sql/rewrite';
+import { runQuery } from '@/lib/db/runQuery';
 
 export const POST = async (req: NextRequest) => {
   try {

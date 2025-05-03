@@ -5,7 +5,7 @@ import { ButtonState } from '../types/buttonStates';
 import { getButtonClasses, getButtonContent } from '../lib/utils/buttonStates';
 import { FormEventHandler, useEffect, useState } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
-import styles from '@/src/styles/formStyles.module.css';
+import styles from '@/styles/formStyles.module.css';
 
 interface FormPageProps {
   pageTitle: string;

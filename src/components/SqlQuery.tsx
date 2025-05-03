@@ -1,17 +1,12 @@
 'use client';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { QueryRequest, sendQuery } from '../lib/api/requests';
 import { FormPage } from './FormPage';
-import { FormField, InputField, TextAreaField } from '../types/form';
+import { FormField, TextAreaField } from '../types/form';
 import { toast } from 'react-hot-toast';
 import QueryResults from './QueryResults';
 import { CsvQueryResult, QueryResponse } from '../types/csv';
-
-const dummyUrl =
-  'https://raw.githubusercontent.com/ngshiheng/michelin-my-maps/main/data/michelin_my_maps.csv';
-
-const dummyQueryString = `SELECT * FROM data WHERE Location = 'Hong Kong'`;
 
 export const SqlQuery = () => {
   const [csvUrl, setCsvUrl] = useState('');
@@ -81,11 +76,6 @@ export const SqlQuery = () => {
 
   const inputFields: FormField[] = [urlInputField, queryInputField];
 
-  useEffect(() => {
-    //TODO: remove the whole effect
-    setCsvUrl(dummyUrl);
-    setSqlQuery(dummyQueryString);
-  }, []);
   return (
     <>
       <FormPage
