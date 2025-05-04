@@ -17,6 +17,9 @@ export const rewriteQueryTable = (sql: string, actualTable: string): string => {
 
       for (const key in n) {
         if (Object.prototype.hasOwnProperty.call(n, key)) {
+          // instead of n.hasOwnProperty(key) -
+          // not to assume that n inherits from Object.prototype and has that method
+
           rewrite(n[key]);
         }
       }

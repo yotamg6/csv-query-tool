@@ -12,7 +12,10 @@ export const insertRows = (
   records: Record<string, string>[],
 ) => {
   const placeholders = columns.map(() => '?').join(', ');
-  const insert = db.prepare(`INSERT INTO ${tableName} VALUES (${placeholders})`);
+  const insert = db.prepare(
+    `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders})`,
+  );
+
   const insertMany = db.transaction((rows: Record<string, string>[]) => {
     for (const row of rows) {
       insert.run(columns.map((col) => row[col] ?? null));

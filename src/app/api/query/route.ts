@@ -35,7 +35,7 @@ export const POST = async (req: NextRequest) => {
     const rewrittenQuery = rewriteQueryTable(sqlQuery, tableName);
 
     const result = runQuery(rewrittenQuery);
-    if (!result || !result.length) {
+    if (!result.length) {
       return new NextResponse(null, { status: 204 });
     }
     return NextResponse.json({
