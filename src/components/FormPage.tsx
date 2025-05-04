@@ -14,8 +14,6 @@ interface FormPageProps {
   isLoading: boolean;
   isSuccess: boolean;
   isError: boolean;
-  resetFields: () => void;
-  hasResults: boolean;
 }
 
 export const FormPage = ({
@@ -25,17 +23,9 @@ export const FormPage = ({
   isLoading,
   isSuccess,
   isError,
-  resetFields,
-  hasResults,
 }: FormPageProps) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [buttonState, setButtonState] = useState<ButtonState>('idle');
-
-  const handleReset = () => {
-    setButtonState('idle');
-    setErrors({});
-    resetFields();
-  };
 
   const handleInvalid: FormEventHandler<HTMLInputElement | HTMLTextAreaElement> = (e) => {
     e.preventDefault();
@@ -116,15 +106,6 @@ export const FormPage = ({
       >
         {getButtonContent(buttonState)}
       </button>
-      {hasResults && (
-        <button
-          type="button"
-          onClick={handleReset}
-          className={`${styles.largeButton} bg-yellow-600 hover:bg-yellow-700`}
-        >
-          Clear results
-        </button>
-      )}
     </form>
   );
 };

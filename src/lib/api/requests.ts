@@ -9,8 +9,15 @@ export const sendQuery = async (data: QueryRequest) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  if (!res.ok) {
-    throw new Error('Failed to send query');
+  if (res.status === 204) {
+    throw new Error('No results found');
   }
-  return res.json();
+
+  const payload = await res.json();
+
+  if (!res.ok) {
+    throw new Error(payload.error ?? payload.message ?? 'Failed to send query');
+  }
+
+  return payload;
 };

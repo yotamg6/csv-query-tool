@@ -22,7 +22,7 @@ export const POST = async (req: NextRequest) => {
     if (!tableName) {
       const records = await fetchCsvData(csvUrl);
       if (!records.length) {
-        return NextResponse.json({ message: 'No rows found', result: [] });
+        return new NextResponse(null, { status: 204 });
       }
 
       const columns = Object.keys(records[0]);
@@ -35,6 +35,9 @@ export const POST = async (req: NextRequest) => {
     const rewrittenQuery = rewriteQueryTable(sqlQuery, tableName);
 
     const result = runQuery(rewrittenQuery);
+    if (!result || !result.length) {
+      return new NextResponse(null, { status: 204 });
+    }
     return NextResponse.json({
       message: 'SQL query executed successfully.',
       result,
@@ -42,6 +45,6 @@ export const POST = async (req: NextRequest) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     console.error('Error:', message);
-    return NextResponse.json({ error: message }, { status: 400 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 };

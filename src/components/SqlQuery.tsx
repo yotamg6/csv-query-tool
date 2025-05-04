@@ -1,5 +1,5 @@
 'use client';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { QueryRequest, sendQuery } from '../lib/api/requests';
 import { FormPage } from './FormPage';
@@ -7,6 +7,7 @@ import { FormField, TextAreaField } from '../types/form';
 import { toast } from 'react-hot-toast';
 import QueryResults from './QueryResults';
 import { CsvQueryResult, QueryResponse } from '../types/csv';
+import styles from '@/styles/formStyles.module.css';
 
 export const SqlQuery = () => {
   const [csvUrl, setCsvUrl] = useState('');
@@ -85,10 +86,19 @@ export const SqlQuery = () => {
         isLoading={mutation.isPending}
         isSuccess={mutation.isSuccess}
         isError={mutation.isError}
-        resetFields={resetFields}
-        hasResults={!!results}
       />
-      {results && <QueryResults results={results} />}
+      {results && (
+        <>
+          <button
+            type="button"
+            onClick={resetFields}
+            className={`${styles.largeButton} w-full bg-yellow-600 hover:bg-yellow-700 mt-4`}
+          >
+            Clear results
+          </button>
+          <QueryResults results={results} />
+        </>
+      )}
     </>
   );
 };
