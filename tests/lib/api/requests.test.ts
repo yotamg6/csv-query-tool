@@ -1,57 +1,83 @@
-import { QueryRequest, sendQuery } from '@/lib/api/requests';
-
-global.fetch = jest.fn();
+import { sendQuery } from '@/lib/api/requests';
 
 describe('sendQuery', () => {
   beforeEach(() => {
-    // Clear mock data before each test
     jest.clearAllMocks();
   });
 
-  it('should send a POST request with correct parameters', async () => {
-    // Test data
-    const queryData: QueryRequest = {
+  it('should call fetch with the correct parameters', async () => {
+    // Setup test data
+    const queryData = {
       csvUrl: 'https://example.com/data.csv',
-      sqlQuery: 'SELECT * FROM table',
+      sqlQuery: 'SELECT * FROM data',
     };
 
-    // Mock successful response
-    const expectedResponse = {
-      message: 'SQL query executed successfully.',
-      result: [{ id: 1, name: 'Test' }],
-    };
-
-    // Setup fetch mock
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    // Mock fetch with successful response
+    global.fetch = jest.fn().mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValueOnce(expectedResponse),
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        message: 'Success',
+        result: [{ id: 1, name: 'Test' }],
+      }),
     });
 
-    // Execute the function
+    // Execute
     const result = await sendQuery(queryData);
 
-    // Assertions
+    // Verify the function called fetch with the right parameters
     expect(global.fetch).toHaveBeenCalledWith('/api/query', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(queryData),
     });
 
-    expect(result).toEqual(expectedResponse);
+    // Verify result
+    expect(result).toEqual({
+      message: 'Success',
+      result: [{ id: 1, name: 'Test' }],
+    });
+  });
+
+  it('should handle 204 (No Content) response', async () => {
+    // Setup test data
+    const queryData = {
+      csvUrl: 'https://example.com/data.csv',
+      sqlQuery: 'SELECT * FROM data WHERE 1=0',
+    };
+
+    // Mock fetch with 204 response
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 204,
+      json: jest.fn().mockRejectedValue(new Error('Unexpected end of JSON input')),
+    });
+
+    // Execute and expect error
+    await expect(sendQuery(queryData)).rejects.toThrow('No results found');
+
+    // Verify the function called fetch with the right parameters
+    expect(global.fetch).toHaveBeenCalledWith('/api/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(queryData),
+    });
   });
 
   it('should throw an error when the request fails', async () => {
-    // Test data
-    const queryData: QueryRequest = {
-      csvUrl: 'https://example.com/invalid.csv',
-      sqlQuery: 'SELECT * FROM table',
+    // Setup test data
+    const queryData = {
+      csvUrl: 'https://example.com/data.csv',
+      sqlQuery: 'SELECT * FROM data',
     };
 
-    // Mock failed response
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
+    // Mock fetch with error response
+    global.fetch = jest.fn().mockResolvedValue({
       ok: false,
-      status: 400,
-      statusText: 'Bad Request',
+      status: 500,
+      json: jest.fn().mockResolvedValue({
+        error: 'Failed to send query',
+      }),
     });
 
     // Execute and expect error
@@ -65,19 +91,22 @@ describe('sendQuery', () => {
     });
   });
 
-  it('should throw an error when fetch rejects', async () => {
-    // Test data
-    const queryData: QueryRequest = {
+  it('should use default error message when no error message is returned', async () => {
+    // Setup test data
+    const queryData = {
       csvUrl: 'https://example.com/data.csv',
-      sqlQuery: 'SELECT * FROM table',
+      sqlQuery: 'SELECT * FROM data',
     };
 
-    // Mock network error
-    const networkError = new Error('Network error');
-    (global.fetch as jest.Mock).mockRejectedValueOnce(networkError);
+    // Mock fetch with error response that has no error message
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: jest.fn().mockResolvedValue({}),
+    });
 
     // Execute and expect error
-    await expect(sendQuery(queryData)).rejects.toThrow(networkError);
+    await expect(sendQuery(queryData)).rejects.toThrow('Failed to send query');
 
     // Verify the function called fetch with the right parameters
     expect(global.fetch).toHaveBeenCalledWith('/api/query', {
@@ -88,21 +117,21 @@ describe('sendQuery', () => {
   });
 
   it('should handle JSON parsing errors', async () => {
-    // Test data
-    const queryData: QueryRequest = {
+    // Setup test data
+    const queryData = {
       csvUrl: 'https://example.com/data.csv',
-      sqlQuery: 'SELECT * FROM table',
+      sqlQuery: 'SELECT * FROM data',
     };
 
-    // Mock JSON parsing error
-    const jsonError = new Error('Invalid JSON');
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: jest.fn().mockRejectedValueOnce(jsonError),
+    // Mock fetch with a response that will fail to parse JSON
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
     });
 
     // Execute and expect error
-    await expect(sendQuery(queryData)).rejects.toThrow(jsonError);
+    await expect(sendQuery(queryData)).rejects.toThrow('Invalid JSON');
 
     // Verify the function called fetch with the right parameters
     expect(global.fetch).toHaveBeenCalledWith('/api/query', {

@@ -1,5 +1,5 @@
 'use client';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { QueryRequest, sendQuery } from '../lib/api/requests';
 import { FormPage } from './FormPage';
