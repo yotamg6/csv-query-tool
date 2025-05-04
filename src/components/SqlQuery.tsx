@@ -5,9 +5,9 @@ import { QueryRequest, sendQuery } from '../lib/api/requests';
 import { FormPage } from './FormPage';
 import { FormField, TextAreaField } from '../types/form';
 import { toast } from 'react-hot-toast';
-import QueryResults from './QueryResults';
 import { CsvQueryResult, QueryResponse } from '../types/csv';
 import styles from '@/styles/formStyles.module.css';
+import ResultsPage from './ResultsPage';
 
 export const SqlQuery = () => {
   const [csvUrl, setCsvUrl] = useState('');
@@ -96,7 +96,7 @@ export const SqlQuery = () => {
           >
             Clear results
           </button>
-          <QueryResults results={results} />
+          <ResultsPage data={results} />
         </>
       )}
     </>

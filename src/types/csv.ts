@@ -8,3 +8,7 @@ export interface QueryResponse {
   message: string;
   result: CsvQueryResult;
 }
+
+export interface RowObject {
+  [key: string]: string | number | boolean | null;
+}

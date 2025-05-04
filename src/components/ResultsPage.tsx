@@ -1,25 +1,26 @@
 'use client';
 
 import React from 'react';
-import type { CsvQueryResult, CsvRow } from '../types/csv';
 import Tooltip from '@mui/material/Tooltip';
 import { CELL_WORD_LIMIT } from '../lib/constants';
 import { calcTooltipMaxWidth } from '../lib/utils/text';
+import { RowObject } from '@/types/csv';
 
-interface ResultsPageProps {
-  data: CsvQueryResult;
+interface ResultsPageProps<T extends RowObject> {
+  data: T[];
 }
 
-const ResultsPage = ({ data }: ResultsPageProps) => {
-  if (!data || !data.length) {
+const ResultsPage = <T extends RowObject>({ data }: ResultsPageProps<T>) => {
+  if (!data || data.length === 0) {
     return <div className="p-4 text-center text-gray-500">No results to display.</div>;
   }
 
   const SPAN_MAX_WIDTH = calcTooltipMaxWidth(CELL_WORD_LIMIT);
+  const columns = Object.keys(data[0]);
 
-  const renderCell = (col: string, row: CsvRow) => {
+  const renderCell = (col: keyof T, row: T) => {
     const cellValue = row[col];
-    const text = cellValue !== null ? String(cellValue) : '—';
+    const text = cellValue !== null && cellValue !== undefined ? String(cellValue) : '—';
     const words = text.trim().split(/\s+/);
     const isLong = words.length > CELL_WORD_LIMIT;
 
@@ -29,9 +30,9 @@ const ResultsPage = ({ data }: ResultsPageProps) => {
           title={text}
           arrow
           placement="top"
-          disableHoverListener={words.length <= CELL_WORD_LIMIT}
-          disableFocusListener={words.length <= CELL_WORD_LIMIT}
-          disableTouchListener={words.length <= CELL_WORD_LIMIT}
+          disableHoverListener={!isLong}
+          disableFocusListener={!isLong}
+          disableTouchListener={!isLong}
           slotProps={{
             tooltip: {
               sx: {
@@ -49,10 +50,9 @@ const ResultsPage = ({ data }: ResultsPageProps) => {
         </Tooltip>
       );
     }
+
     return text;
   };
-
-  const columns = Object.keys(data[0]);
 
   return (
     <div className="overflow-x-auto mt-8">
@@ -67,11 +67,11 @@ const ResultsPage = ({ data }: ResultsPageProps) => {
           </tr>
         </thead>
         <tbody>
-          {data.map((row: CsvRow, rowIndex: number) => (
+          {data.map((row, rowIndex) => (
             <tr key={rowIndex} className="even:bg-gray-50">
               {columns.map((col) => (
                 <td key={col} className="p-2 border-b border-gray-200">
-                  {renderCell(col, row)}
+                  {renderCell(col as keyof T, row)}
                 </td>
               ))}
             </tr>
